@@ -36,6 +36,13 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
         scale: 2,
         useCORS: true,
         backgroundColor: '#f6faf6',
+        ignoreElements: (element) => {
+          // Skip elements that might have unsupported color functions
+          const computedStyle = window.getComputedStyle(element);
+          const bgColor = computedStyle.backgroundColor;
+          const color = computedStyle.color;
+          return bgColor.includes('oklab') || color.includes('oklab');
+        },
       });
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -92,16 +99,16 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
                 {result.sub}
               </p>
 
-              {/* Only show QR code in captured poster */}
-              {isCapturing && (
-                <div className="mt-8 pt-6 border-t border-[#dbe8dd] flex items-center gap-4">
-                  <QrCode size={48} className="text-[#4d6a53]" />
-                  <div className="text-xs text-[#6a786f]">
-                    <div className="font-bold text-[#1e2a22] mb-1">长按扫码测测你的SBTI</div>
-                    <div>基于15维度25种人格深度解析</div>
-                  </div>
+              {/* QR code and share prompt - always visible */}
+              <div className="mt-6 pt-4 border-t border-[#dbe8dd] flex items-center gap-3">
+                <div className="w-12 h-12 bg-[#4d6a53] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <QrCode size={24} className="text-white" />
                 </div>
-              )}
+                <div className="text-xs text-[#6a786f]">
+                  <div className="font-bold text-[#1e2a22] mb-0.5">截图分享测试</div>
+                  <div className="text-[11px]">扫码跳转当前网站</div>
+                </div>
+              </div>
             </div>
           </div>
           
