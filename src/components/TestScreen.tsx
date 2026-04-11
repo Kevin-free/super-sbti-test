@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { motion,  } from 'framer-motion';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { questions, specialQuestions } from '../data/questions';

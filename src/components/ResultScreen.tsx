@@ -15,7 +15,6 @@ interface ResultScreenProps {
 export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
   const [unlocked, setUnlocked] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
-  const [isCapturing, setIsCapturing] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const posterRef = useRef<HTMLDivElement>(null);
   const type = result.finalType;
@@ -43,7 +42,6 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
 
   const generatePoster = async () => {
     if (!posterRef.current) return;
-    setIsCapturing(true);
     try {
       const canvas = await html2canvas(posterRef.current, {
         scale: 2,
@@ -65,8 +63,6 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
     } catch (err) {
       console.error('Failed to generate poster', err);
       alert('海报生成失败，请重试');
-    } finally {
-      setIsCapturing(false);
     }
   };
 
