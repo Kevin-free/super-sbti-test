@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #4d6a53;
+  --color-primary-light: #6c8d71;
+  --color-secondary: #f6faf6;
+  --color-panel: #ffffff;
+  --color-text-main: #1e2a22;
+  --color-text-muted: #6a786f;
+  --color-line: #dbe8dd;
+  --color-soft: #edf6ef;
+}
+
+body {
+  background: radial-gradient(circle at top left, #f8fff8 0, #f6faf6 36%, #f2f7f3 100%);
+  color: var(--color-text-main);
+  min-height: 100vh;
+}
