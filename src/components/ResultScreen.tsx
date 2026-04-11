@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion,  } from 'framer-motion';
-import { Download, RefreshCw, Lock, Unlock } from 'lucide-react';
+import { Download, Lock, Unlock, RefreshCw } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import { ComputedResult } from '../utils/calculator';
@@ -14,13 +14,14 @@ interface ResultScreenProps {
 
 export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
   const [unlocked, setUnlocked] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [wechatQrCodeUrl, setWechatQrCodeUrl] = useState('');
   const posterRef = useRef<HTMLDivElement>(null);
   const type = result.finalType;
   const imageSrc = TYPE_IMAGES[type.code] || null;
 
   useEffect(() => {
+    // Generate QR code for sharing
     QRCode.toDataURL(window.location.origin, {
       width: 80,
       margin: 1,
@@ -29,15 +30,13 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
         light: '#ffffff',
       },
     }).then(setQrCodeUrl);
+
+    // Set WeChat official account QR code
+    setWechatQrCodeUrl('/image/qrcode-kevintao1024.png');
   }, []);
 
-  const handleSimulatePayment = () => {
-    setShowPayment(true);
-    // Simulate 2 seconds payment
-    setTimeout(() => {
-      setShowPayment(false);
-      setUnlocked(true);
-    }, 2000);
+  const handleUnlock = () => {
+    setUnlocked(true);
   };
 
   const generatePoster = async () => {
@@ -63,6 +62,8 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
     } catch (err) {
       console.error('Failed to generate poster', err);
       alert('海报生成失败，请重试');
+    } finally {
+      setIsCapturing(false);
     }
   };
 
@@ -168,32 +169,59 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
               </div>
             </div>
             
-            <div className="relative z-10 bg-white/90 backdrop-blur border border-[#dbe8dd] p-8 rounded-3xl shadow-xl max-w-md w-full">
+            <div className="relative z-10 bg-white/90 backdrop-blur border border-[#dbe8dd] p-8 rounded-3xl shadow-xl max-w-2xl w-full">
               <div className="w-16 h-16 bg-[#edf6ef] text-[#4d6a53] rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock size={32} />
               </div>
-              <h3 className="text-xl font-bold text-[#1e2a22] mb-2">解锁完整深度分析</h3>
+              <h3 className="text-xl font-bold text-[#1e2a22] mb-2">获取完整深度分析</h3>
               <p className="text-[#6a786f] text-sm mb-6">
-                包含全部 15 个维度的精细得分、性格短板解析以及专属发展建议。
+                包含全部 15 个维度的精细得分、性格短板解析以及专属发展建议
               </p>
-              
-              {showPayment ? (
-                <div className="space-y-4">
-                  <div className="animate-spin text-[#4d6a53] mx-auto w-8 h-8">
-                    <RefreshCw size={32} />
+
+              <div className="space-y-6">
+                {/* WeChat Official Account Section */}
+                <div className="bg-white border-2 border-[#4d6a53] rounded-2xl p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <h4 className="font-bold text-[#1e2a22] mb-3 text-base">关注公众号，获取完整报告</h4>
+                    {wechatQrCodeUrl && (
+                      <div className="w-48 h-48 bg-white rounded-xl flex items-center justify-center mb-3 border border-[#dbe8dd]">
+                        <img src={wechatQrCodeUrl} alt="WeChat QR Code" className="w-full h-full p-2" />
+                      </div>
+                    )}
+                    <p className="text-sm text-[#6a786f] mb-2">
+                      扫码关注公众号，回复 <span className="font-bold text-[#4d6a53]">"SBTI"</span>
+                    </p>
+                    <p className="text-xs text-[#a0b0a5]">
+                      即可获取完整版分析报告和社群二维码
+                    </p>
                   </div>
-                  <p className="text-sm text-[#4d6a53] font-medium animate-pulse">模拟支付中，请稍候...</p>
                 </div>
-              ) : (
-                <button 
-                  onClick={handleSimulatePayment}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#4d6a53] to-[#3a5240] text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-95"
+
+                {/* Community Section */}
+                <div className="bg-gradient-to-br from-[#f7fbf8] to-[#edf6ef] border border-[#dbe8dd] rounded-2xl p-6">
+                  <div className="text-center">
+                    <h4 className="font-bold text-[#1e2a22] mb-2 text-base">想学 AI 做自己的产品？</h4>
+                    <p className="text-sm text-[#6a786f] mb-4">
+                      加入我们的社区，和一群有趣的人一起探索 AI 的无限可能
+                    </p>
+                    <a
+                      href="https://kevintao1024.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-[#4d6a53] to-[#3a5240] text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-95"
+                    >
+                      加入社区
+                    </a>
+                  </div>
+                </div>
+
+                {/* Skip button */}
+                <button
+                  onClick={handleUnlock}
+                  className="w-full py-3 text-[#6a786f] text-sm hover:text-[#4d6a53] transition-colors underline"
                 >
-                  ¥ 9.90 一键解锁
+                  暂时跳过，直接查看
                 </button>
-              )}
-              <div className="mt-4 text-xs text-[#a0b0a5]">
-                * 这是一个模拟的付费流程，不会真实扣款
               </div>
             </div>
           </div>
