@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion,  } from 'framer-motion';
-import { Download, RefreshCw, Lock, Unlock, QrCode } from 'lucide-react';
+import { Download, RefreshCw, Lock, Unlock } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import QRCode from 'qrcode';
 import { ComputedResult } from '../utils/calculator';
 import { dimensionOrder, dimensionMeta, DIM_EXPLANATIONS } from '../data/dimensions';
 import { TYPE_IMAGES } from '../data/types';
@@ -15,9 +16,21 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
   const [unlocked, setUnlocked] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const posterRef = useRef<HTMLDivElement>(null);
   const type = result.finalType;
   const imageSrc = TYPE_IMAGES[type.code] || null;
+
+  useEffect(() => {
+    QRCode.toDataURL(window.location.origin, {
+      width: 80,
+      margin: 1,
+      color: {
+        dark: '#4d6a53',
+        light: '#ffffff',
+      },
+    }).then(setQrCodeUrl);
+  }, []);
 
   const handleSimulatePayment = () => {
     setShowPayment(true);
@@ -101,9 +114,11 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
 
               {/* QR code and share prompt - always visible */}
               <div className="mt-6 pt-4 border-t border-[#dbe8dd] flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#4d6a53] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <QrCode size={24} className="text-white" />
-                </div>
+                {qrCodeUrl && (
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+                    <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
+                  </div>
+                )}
                 <div className="text-xs text-[#6a786f]">
                   <div className="font-bold text-[#1e2a22] mb-0.5">截图分享测试</div>
                   <div className="text-[11px]">扫码跳转当前网站</div>
