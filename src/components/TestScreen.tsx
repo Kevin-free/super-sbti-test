@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion,  } from 'framer-motion';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { questions, specialQuestions } from '../data/questions';
@@ -12,7 +12,8 @@ interface TestScreenProps {
 
 export default function TestScreen({ onComplete, onBack }: TestScreenProps) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  
+  const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   // Shuffle logic on mount
   const shuffledQuestions = useMemo(() => {
     const regular = [...questions].sort(() => Math.random() - 0.5);
@@ -45,6 +46,24 @@ export default function TestScreen({ onComplete, onBack }: TestScreenProps) {
 
   const handleOptionChange = (qId: string, value: number) => {
     setAnswers(prev => ({ ...prev, [qId]: value }));
+
+    // Find the next unanswered question and scroll to it
+    const currentIndex = visibleQuestions.findIndex(q => q.id === qId);
+    if (currentIndex !== -1 && currentIndex < visibleQuestions.length - 1) {
+      // Look for the next unanswered question
+      for (let i = currentIndex + 1; i < visibleQuestions.length; i++) {
+        const nextQ = visibleQuestions[i];
+        if (!answers[nextQ.id] && answers[nextQ.id] !== value) {
+          const nextElement = questionRefs.current[nextQ.id];
+          if (nextElement) {
+            setTimeout(() => {
+              nextElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+          }
+          break;
+        }
+      }
+    }
   };
 
   const handleSubmit = () => {
@@ -74,8 +93,9 @@ export default function TestScreen({ onComplete, onBack }: TestScreenProps) {
 
       <div className="space-y-6">
         {visibleQuestions.map((q, index) => (
-          <motion.div 
+          <motion.div
             key={q.id}
+            ref={(el) => { questionRefs.current[q.id] = el; }}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
