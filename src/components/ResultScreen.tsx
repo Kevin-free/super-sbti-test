@@ -21,6 +21,8 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
   const imageSrc = TYPE_IMAGES[type.code] || null;
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
     // Generate QR code for sharing
     QRCode.toDataURL(window.location.origin, {
       width: 80,
@@ -33,7 +35,7 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
 
     // Set WeChat official account QR code
     setWechatQrCodeUrl('/image/qrcode-kevintao1024.png');
-  }, []);
+  }, [result]);
 
   const handleUnlock = () => {
     setUnlocked(true);
@@ -62,8 +64,6 @@ export default function ResultScreen({ result, onRestart }: ResultScreenProps) {
     } catch (err) {
       console.error('Failed to generate poster', err);
       alert('海报生成失败，请重试');
-    } finally {
-      setIsCapturing(false);
     }
   };
 
